@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, ViewChild, HostListener } from '@angular/core';
+import { Component, ViewChild, HostListener } from '@angular/core';
 import { NgxChessBoardView } from 'ngx-chess-board';
 
 @Component({
@@ -9,20 +9,21 @@ import { NgxChessBoardView } from 'ngx-chess-board';
 export class IframePageComponent {
   isReverse: boolean = false;
   @ViewChild('board', { static: false }) board!: NgxChessBoardView;
-  constructor( 
-    private cdref: ChangeDetectorRef, 
-  ) {}
 
   // Listen for messages from the parent window
   @HostListener('window:message', ['$event'])
   onMessage(event: MessageEvent) {
-    const {type, state} = event.data;
-    if (type === 'start') {
+    const {type, state, reverse} = event.data;
+    console.log(event.data)
+    if (type === 'play') {
       this.board.setFEN(state)
+      if (reverse) {
+        this.board.reverse();
+      }
     }
-    if (type === 'reverse') {
-      this.board.reverse();
-      this.cdref.detectChanges();
+
+    if (type === 'reset') {
+      this.board.reset()
     }
   }
   onMove() {

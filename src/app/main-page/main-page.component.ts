@@ -27,7 +27,7 @@ export class MainPageComponent {
 
   postMessage(message: any){
     const iframe = document.getElementById('iframeId') as HTMLIFrameElement;
-    iframe.contentWindow?.postMessage(message, '*');
+    iframe.contentWindow?.postMessage({... message, reverse: this.reverse}, '*');
   }
 
   createGame() {
@@ -35,15 +35,15 @@ export class MainPageComponent {
       this.gameId = result.id;
       localStorage.setItem('gameId', this.gameId);
 
-      this.postMessage({ type: 'start', state: '' });
+      this.postMessage({ type: 'reset' });
     });
   }
 
   joinGame() {
-    this.getGame();
+    this.reverse = 'true';
     localStorage.setItem('reverse', 'true');
 
-    this.postMessage({ type: 'reverse' });
+    this.getGame();
   }
   
   handleMoveEvent(event: MessageEvent) {
@@ -57,7 +57,6 @@ export class MainPageComponent {
     if(this.gameId){
       this.firebaseService.getGameById(this.gameId).then((data: any) => {
         localStorage.setItem('gameId', this.gameId);
-        this.postMessage({ type: 'start', state: data.state })
         this.watch();
       })  
     }
@@ -65,7 +64,8 @@ export class MainPageComponent {
 
   watch() {
     this.gameSubscription = this.firebaseService.onGameUpdate(this.gameId).subscribe((data: any) => {
-      this.postMessage({ type: 'start', state: data.state });
+      console.log('watch', data)
+      this.postMessage({ type: 'play', state: data.state });
     });
   }
 

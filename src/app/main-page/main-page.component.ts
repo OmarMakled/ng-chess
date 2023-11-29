@@ -7,9 +7,11 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   styleUrls: ['./main-page.component.css']
 })
 export class MainPageComponent {
-  iframeUrl: SafeResourceUrl;
+  iframePlayerOneUrl: SafeResourceUrl;
+  iframePlayerTwoUrl: SafeResourceUrl;
 
   constructor(private sanitizer: DomSanitizer) {
-    this.iframeUrl = this.sanitizer.bypassSecurityTrustResourceUrl('/iframepage');
+    this.iframePlayerOneUrl = this.sanitizer.bypassSecurityTrustResourceUrl('/iframepage');
+    this.iframePlayerTwoUrl = this.sanitizer.bypassSecurityTrustResourceUrl('/iframepage?reverse=true');
   }
 }

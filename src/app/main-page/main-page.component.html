@@ -1,2 +1,14 @@
-<iframe [src]="iframePlayerOneUrl" width="45%" height="500"></iframe>
-<iframe [src]="iframePlayerTwoUrl" width="45%" height="500"></iframe>
+<div>
+    <button (click)="createGame()">Create Game</button>
+</div>
+<div>
+    <input type="text" [(ngModel)]="gameId" placeholder="Game id">
+    <button (click)="joinGame()">Join Game</button>
+</div>
+<div *ngIf="gameId">
+    <p>Game ID: {{ gameId }}</p>
+</div>
+<iframe 
+    id="iframeId"
+    [src]="iframePlayerOneUrl" 
+    *ngIf="gameId" width="45%" height="500"></iframe>

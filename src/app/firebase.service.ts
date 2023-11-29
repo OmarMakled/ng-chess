@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, collectionData, addDoc, doc,
-  getDoc, updateDoc } from '@angular/fire/firestore';
+import { Firestore, collection, addDoc, doc, getDoc, updateDoc, onSnapshot } from '@angular/fire/firestore';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -12,11 +12,6 @@ export class FirebaseService {
     let data = {state}
     let gamesCollection = collection(this.fs, 'games');
     return addDoc(gamesCollection, data);
-  }
-
-  getGames() {
-    let gamesCollection = collection(this.fs, 'games');
-    return collectionData(gamesCollection, {idField: 'id'});
   }
 
   createGame(gameData: any){
@@ -34,9 +29,24 @@ export class FirebaseService {
     return getDoc(gameDoc).then((docSnapshot) => {
       if (docSnapshot.exists()) {
         return { id: docSnapshot.id, ...docSnapshot.data() };
-      } else {
-        throw new Error('Game not found');
       }
+      throw new Error('Game not found');
+    });
+  }
+  
+  onGameUpdate(gameId: string): Observable<any> {
+    const gameDoc = doc(this.fs, 'games', gameId);
+    return new Observable<any>((observer) => {
+      const unsubscribe = onSnapshot(gameDoc, (docSnapshot) => {
+        if (docSnapshot.exists()) {
+          observer.next({ id: docSnapshot.id, ...docSnapshot.data() });
+        } else {
+          observer.error(new Error('Game not found'));
+        }
+      });
+
+      // Cleanup function to unsubscribe when the component is destroyed
+      return () => unsubscribe();
     });
   }
 }

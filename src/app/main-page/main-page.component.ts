@@ -11,7 +11,6 @@ export class MainPageComponent {
   iframePlayerOneUrl: SafeResourceUrl;
   iframePlayerTwoUrl: SafeResourceUrl;
   gameId: string = '';
-  game: any = {};
 
   constructor(private sanitizer: DomSanitizer,  private firebaseService: FirebaseService) {
     this.iframePlayerOneUrl = this.sanitizer.bypassSecurityTrustResourceUrl('/iframepage');
@@ -37,8 +36,8 @@ export class MainPageComponent {
   }
   
   handleMoveEvent(event: MessageEvent) {
-    if (event.data.type === 'moveEvent') {
-      const state = event.data.data;
+    const {type, state} = event.data;
+    if (type === 'moveEvent') {
       console.log('Received state update:', state, 'for game ID:', this.gameId);
       this.firebaseService.updateGameById(this.gameId, {
         state
@@ -48,10 +47,9 @@ export class MainPageComponent {
 
   getGame(){
     if (this.gameId){
-      this.firebaseService.getGameById(this.gameId).then(result => {
-        this.game = result
+      this.firebaseService.getGameById(this.gameId).then(({state}: any) => {
         const iframe = document.getElementById('iframeId') as HTMLIFrameElement;
-        iframe.contentWindow?.postMessage({ type: 'initialState', data: this.game }, '*');
+        iframe.contentWindow?.postMessage({ type: 'initialState', state }, '*');
       })  
     }
   }

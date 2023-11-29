@@ -24,9 +24,9 @@ export class FirebaseService {
     return addDoc(gamesCollection, gameData);
   }
 
-  updateGameById(gameId: string, updatedGameData: any) {
+  updateGameById(gameId: string, gameData: any) {
     const gameDoc = doc(this.fs, 'games', gameId);
-    return updateDoc(gameDoc, updatedGameData);
+    return updateDoc(gameDoc, gameData, { merge: true });
   }
 
   getGameById(gameId: string){

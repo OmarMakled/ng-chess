@@ -12,28 +12,21 @@ export class IframePageComponent {
   constructor( 
     private cdref: ChangeDetectorRef, 
   ) {}
-  ngOnInit() {
-    // this.route.queryParams.subscribe((params) => {
-    //   this.isReverse = params['reverse'] ?? false
-    // }); 
-  }
 
   // Listen for messages from the parent window
   @HostListener('window:message', ['$event'])
   onMessage(event: MessageEvent) {
     const {type, state} = event.data;
-    if (type === 'initialState') {
+    if (type === 'start') {
       this.board.setFEN(state)
+    }
+    if (type === 'reverse') {
+      this.board.reverse();
+      this.cdref.detectChanges();
     }
   }
   onMove() {
     const state = this.board.getFEN();
-    window.parent.postMessage({ type: 'moveEvent', state }, '*');
-  }
-  ngAfterViewInit(){
-    // if (this.isReverse){
-    //   this.board.reverse();
-    // }
-    // this.cdref.detectChanges();
+    window.parent.postMessage({ type: 'move', state }, '*');
   }
 }

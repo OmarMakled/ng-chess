@@ -1,28 +1,26 @@
-<div class="container">
-  <div>
-    <label>
-      <input type="radio" [(ngModel)]="gameMode" value="create" /> Create Game
-    </label>
-    <label>
-      <input type="radio" [(ngModel)]="gameMode" value="join" /> Join Game
-    </label>
-  </div>
-
-  <div *ngIf="gameMode === 'create'">
-    <button (click)="createGame()">Create Game</button>
-  </div>
-
-  <div *ngIf="gameMode === 'join'">
-    <input type="text" [(ngModel)]="gameId" placeholder="Game id">
-    <button (click)="joinGame()">Join Game</button>
-  </div>
-
-  <div *ngIf="gameId">
-    <p>Game ID: {{ gameId }}</p>
-  </div>
-
+<main class="container">
+  <section class="mb-20">
+    <div class="mb-10">
+      <p *ngIf="gameId">Game ID: {{ gameId }}</p>
+      <label>
+        <input type="radio" [(ngModel)]="gameMode" value="create" /> Create Game
+      </label>
+      <label>
+        <input type="radio" [(ngModel)]="gameMode" value="join" /> Join Game
+      </label>
+    </div>
+    <div>
+      <div *ngIf="gameMode === 'create'">
+        <button (click)="createGame()">Create Game</button>
+      </div>
+      <div *ngIf="gameMode === 'join'">
+        <input type="text" [(ngModel)]="gameId" placeholder="Game id">
+        <button (click)="joinGame()">Join Game</button>
+      </div>
+    </div>
+  </section>
   <iframe 
     id="iframeId"
     [src]="iframePlayerOneUrl" 
     width="400" height="400" frameborder="0"></iframe>
-</div>
+</main>

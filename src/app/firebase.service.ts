@@ -38,8 +38,6 @@ export class FirebaseService {
           observer.error(new Error('Game not found'));
         }
       });
-
-      // Cleanup function to unsubscribe when the component is destroyed
       return () => unsubscribe();
     });
   }

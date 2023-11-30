@@ -2,7 +2,6 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FirebaseService } from '../firebase.service';
 import { Subscription } from 'rxjs';
-import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-main-page',
@@ -11,7 +10,6 @@ import { take } from 'rxjs/operators';
 })
 export class MainPageComponent implements OnInit, OnDestroy {
   iframePlayerOneUrl: SafeResourceUrl;
-  iframePlayerTwoUrl: SafeResourceUrl;
   gameId: string = '';
   reverse: string = '';
   gameSubscription: Subscription = new Subscription();
@@ -19,7 +17,6 @@ export class MainPageComponent implements OnInit, OnDestroy {
 
   constructor(private sanitizer: DomSanitizer, private firebaseService: FirebaseService) {
     this.iframePlayerOneUrl = this.sanitizer.bypassSecurityTrustResourceUrl('/iframepage');
-    this.iframePlayerTwoUrl = this.sanitizer.bypassSecurityTrustResourceUrl('/iframepage');
   }
 
   ngOnInit() {
@@ -50,6 +47,8 @@ export class MainPageComponent implements OnInit, OnDestroy {
     this.firebaseService.createGame({}).then((result) => {
       this.reset(result.id);
       this.watchGame()
+    }).catch(error => {
+      console.error('Error create game:', error);
     });
   }
 
@@ -79,14 +78,13 @@ export class MainPageComponent implements OnInit, OnDestroy {
       this.watchGame();
     }).catch(error => {
       console.error('Error fetching game:', error);
-      // Handle error, e.g., redirect to an error page
     });
   }
 
   watchGame() {
-    this.unsubscribeGameUpdate(); // Unsubscribe to previous updates
+    this.unsubscribeGameUpdate();
 
-    this.gameSubscription = this.firebaseService.onGameUpdate(this.gameId).pipe(take(1)).subscribe((data: any) => {
+    this.gameSubscription = this.firebaseService.onGameUpdate(this.gameId).subscribe((data: any) => {
       console.log('Game updated:', data);
       const { state, mate } = data;
       this.postMessage({ type: 'play', state, mate });

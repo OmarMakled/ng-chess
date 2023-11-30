@@ -1,5 +1,13 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, addDoc, doc, getDoc, updateDoc, onSnapshot } from '@angular/fire/firestore';
+import {
+  Firestore,
+  collection,
+  addDoc,
+  doc,
+  getDoc,
+  updateDoc,
+  onSnapshot,
+} from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -8,7 +16,7 @@ import { Observable } from 'rxjs';
 export class FirebaseService {
   constructor(private fs: Firestore) {}
 
-  createGame(gameData: any){
+  createGame(gameData: any) {
     const gamesCollection = collection(this.fs, 'games');
     return addDoc(gamesCollection, gameData);
   }
@@ -18,7 +26,7 @@ export class FirebaseService {
     return updateDoc(gameDoc, gameData, { merge: true });
   }
 
-  getGameById(gameId: string){
+  getGameById(gameId: string) {
     const gameDoc = doc(this.fs, 'games', gameId);
     return getDoc(gameDoc).then((docSnapshot) => {
       if (docSnapshot.exists()) {
@@ -27,7 +35,7 @@ export class FirebaseService {
       throw new Error('Game not found');
     });
   }
-  
+
   onGameUpdate(gameId: string): Observable<any> {
     const gameDoc = doc(this.fs, 'games', gameId);
     return new Observable<any>((observer) => {

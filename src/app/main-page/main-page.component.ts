@@ -6,7 +6,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-main-page',
   templateUrl: './main-page.component.html',
-  styleUrls: ['./main-page.component.css']
+  styleUrls: ['./main-page.component.css'],
 })
 export class MainPageComponent implements OnInit, OnDestroy {
   iframePlayerOneUrl: SafeResourceUrl;
@@ -15,8 +15,12 @@ export class MainPageComponent implements OnInit, OnDestroy {
   gameSubscription: Subscription = new Subscription();
   gameMode: string = 'create';
 
-  constructor(private sanitizer: DomSanitizer, private firebaseService: FirebaseService) {
-    this.iframePlayerOneUrl = this.sanitizer.bypassSecurityTrustResourceUrl('/iframepage');
+  constructor(
+    private sanitizer: DomSanitizer,
+    private firebaseService: FirebaseService,
+  ) {
+    this.iframePlayerOneUrl =
+      this.sanitizer.bypassSecurityTrustResourceUrl('/iframepage');
   }
 
   ngOnInit() {
@@ -31,7 +35,10 @@ export class MainPageComponent implements OnInit, OnDestroy {
 
   postMessage(message: any) {
     const iframe = document.getElementById('iframeId') as HTMLIFrameElement;
-    iframe.contentWindow?.postMessage({ ...message, reverse: this.reverse }, '*');
+    iframe.contentWindow?.postMessage(
+      { ...message, reverse: this.reverse },
+      '*',
+    );
   }
 
   initializeGame() {
@@ -44,13 +51,16 @@ export class MainPageComponent implements OnInit, OnDestroy {
   }
 
   createGame() {
-    this.firebaseService.createGame({}).then((result) => {
-      this.gameId = result.id
-      this.reset();
-      this.watchGame()
-    }).catch(error => {
-      console.error('Error create game:', error);
-    });
+    this.firebaseService
+      .createGame({})
+      .then((result) => {
+        this.gameId = result.id;
+        this.reset();
+        this.watchGame();
+      })
+      .catch((error) => {
+        console.error('Error create game:', error);
+      });
   }
 
   reset(reverse: string = '') {
@@ -62,7 +72,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
   }
 
   joinGame() {
-    this.reset('true')
+    this.reset('true');
     this.getGame();
   }
 
@@ -74,24 +84,29 @@ export class MainPageComponent implements OnInit, OnDestroy {
   }
 
   getGame() {
-    this.firebaseService.getGameById(this.gameId).then((data: any) => {
-      this.watchGame();
-    }).catch(error => {
-      console.error('Error fetching game:', error);
-    });
+    this.firebaseService
+      .getGameById(this.gameId)
+      .then((data: any) => {
+        this.watchGame();
+      })
+      .catch((error) => {
+        console.error('Error fetching game:', error);
+      });
   }
 
   watchGame() {
     this.unsubscribeGameUpdate();
 
-    this.gameSubscription = this.firebaseService.onGameUpdate(this.gameId).subscribe((data: any) => {
-      console.log('Game updated:', data);
-      const { state, mate } = data;
-      this.postMessage({ type: 'play', state, mate });
-      if (mate) {
-        alert('Game end!');
-      }
-    });
+    this.gameSubscription = this.firebaseService
+      .onGameUpdate(this.gameId)
+      .subscribe((data: any) => {
+        console.log('Game updated:', data);
+        const { state, mate } = data;
+        this.postMessage({ type: 'play', state, mate });
+        if (mate) {
+          alert('Game end!');
+        }
+      });
   }
 
   unsubscribeGameUpdate() {

@@ -8,7 +8,7 @@ describe('IframePageComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [IframePageComponent]
+      declarations: [IframePageComponent],
     });
     fixture = TestBed.createComponent(IframePageComponent);
     component = fixture.componentInstance;

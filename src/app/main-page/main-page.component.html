@@ -14,13 +14,16 @@
         <button (click)="createGame()">Create Game</button>
       </div>
       <div *ngIf="gameMode === 'join'">
-        <input type="text" [(ngModel)]="gameId" placeholder="Game id">
+        <input type="text" [(ngModel)]="gameId" placeholder="Game id" />
         <button (click)="joinGame()">Join Game</button>
       </div>
     </div>
   </section>
-  <iframe 
+  <iframe
     id="iframeId"
-    [src]="iframePlayerOneUrl" 
-    width="400" height="400" frameborder="0"></iframe>
+    [src]="iframePlayerOneUrl"
+    width="400"
+    height="400"
+    frameborder="0"
+  ></iframe>
 </main>

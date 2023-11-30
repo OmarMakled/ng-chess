@@ -4,7 +4,7 @@ import { NgxChessBoardView } from 'ngx-chess-board';
 @Component({
   selector: 'app-iframe-page',
   templateUrl: './iframe-page.component.html',
-  styleUrls: ['./iframe-page.component.css']
+  styleUrls: ['./iframe-page.component.css'],
 })
 export class IframePageComponent {
   isReverse: boolean = false;
@@ -13,15 +13,15 @@ export class IframePageComponent {
   // Listen for messages from the parent window
   @HostListener('window:message', ['$event'])
   onMessage(event: MessageEvent) {
-    const {type, state, reverse} = event.data;
+    const { type, state, reverse } = event.data;
     if (type === 'play') {
-      this.board.setFEN(state)
+      this.board.setFEN(state);
       if (reverse) {
         this.board.reverse();
       }
     }
     if (type === 'reset') {
-      this.board.reset()
+      this.board.reset();
     }
   }
   onMove() {

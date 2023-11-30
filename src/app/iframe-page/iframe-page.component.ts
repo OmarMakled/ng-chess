@@ -8,7 +8,6 @@ import { AppEvent } from '../app.config';
   styleUrls: ['./iframe-page.component.css'],
 })
 export class IframePageComponent {
-  isReverse: boolean = false;
   @ViewChild('board', { static: false }) board!: NgxChessBoardView;
 
   // Listen for messages from the parent window

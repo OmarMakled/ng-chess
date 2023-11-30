@@ -1,5 +1,6 @@
 import { Component, ViewChild, HostListener } from '@angular/core';
 import { NgxChessBoardView } from 'ngx-chess-board';
+import { AppEvent } from '../app.config';
 
 @Component({
   selector: 'app-iframe-page',
@@ -14,19 +15,19 @@ export class IframePageComponent {
   @HostListener('window:message', ['$event'])
   onMessage(event: MessageEvent) {
     const { type, state, reverse } = event.data;
-    if (type === 'play') {
+    if (type === AppEvent.PLAY) {
       this.board.setFEN(state);
       if (reverse) {
         this.board.reverse();
       }
     }
-    if (type === 'reset') {
+    if (type === AppEvent.RESET) {
       this.board.reset();
     }
   }
   onMove() {
     const state = this.board.getFEN();
     const { mate } = this.board.getMoveHistory().slice(-1)[0];
-    window.parent.postMessage({ type: 'move', state, mate }, '*');
+    window.parent.postMessage({ type: AppEvent.MOVE, state, mate }, '*');
   }
 }

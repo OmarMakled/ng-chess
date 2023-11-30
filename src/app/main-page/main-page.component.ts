@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FirebaseService } from '../firebase.service';
 import { Subscription } from 'rxjs';
+import { AppEvent } from '../app.config';
 
 @Component({
   selector: 'app-main-page',
@@ -68,7 +69,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
 
     localStorage.setItem('gameId', this.gameId);
     localStorage.setItem('reverse', this.reverse);
-    this.postMessage({ type: 'reset' });
+    this.postMessage({ type: AppEvent.RESET });
   }
 
   joinGame() {
@@ -102,7 +103,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
       .subscribe((data: any) => {
         console.log('Game updated:', data);
         const { state, mate } = data;
-        this.postMessage({ type: 'play', state, mate });
+        this.postMessage({ type: AppEvent.PLAY, state, mate });
         if (mate) {
           alert('Game end!');
         }

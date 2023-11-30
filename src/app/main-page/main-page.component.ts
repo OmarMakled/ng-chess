@@ -45,24 +45,24 @@ export class MainPageComponent implements OnInit, OnDestroy {
 
   createGame() {
     this.firebaseService.createGame({}).then((result) => {
-      this.reset(result.id);
+      this.gameId = result.id
+      this.reset();
       this.watchGame()
     }).catch(error => {
       console.error('Error create game:', error);
     });
   }
 
-  reset(id: string) {
-    this.gameId = id;
-    localStorage.setItem('gameId', id);
-    localStorage.removeItem('reverse');
+  reset(reverse: string = '') {
+    this.reverse = reverse;
+
+    localStorage.setItem('gameId', this.gameId);
+    localStorage.setItem('reverse', this.reverse);
     this.postMessage({ type: 'reset' });
   }
 
   joinGame() {
-    this.reverse = 'true';
-    localStorage.setItem('reverse', 'true');
-
+    this.reset('true')
     this.getGame();
   }
 

@@ -1,43 +1,59 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FirebaseService } from '../firebase.service';
 import { Subscription } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-main-page',
   templateUrl: './main-page.component.html',
   styleUrls: ['./main-page.component.css']
 })
-export class MainPageComponent {
+export class MainPageComponent implements OnInit, OnDestroy {
   iframePlayerOneUrl: SafeResourceUrl;
   iframePlayerTwoUrl: SafeResourceUrl;
-  gameId: string = localStorage.getItem('gameId') ?? '';
-  reverse: string = localStorage.getItem('reverse') ?? ''
+  gameId: string = '';
+  reverse: string = '';
   gameSubscription: Subscription = new Subscription();
   gameMode: string = 'create';
 
-  constructor(private sanitizer: DomSanitizer,  private firebaseService: FirebaseService) {
+  constructor(private sanitizer: DomSanitizer, private firebaseService: FirebaseService) {
     this.iframePlayerOneUrl = this.sanitizer.bypassSecurityTrustResourceUrl('/iframepage');
     this.iframePlayerTwoUrl = this.sanitizer.bypassSecurityTrustResourceUrl('/iframepage');
   }
 
   ngOnInit() {
     window.addEventListener('message', this.handleMoveEvent.bind(this));
-    this.getGame();
+    this.initializeGame();
   }
 
-  postMessage(message: any){
+  ngOnDestroy() {
+    window.removeEventListener('message', this.handleMoveEvent.bind(this));
+    this.unsubscribeGameUpdate();
+  }
+
+  postMessage(message: any) {
     const iframe = document.getElementById('iframeId') as HTMLIFrameElement;
-    iframe.contentWindow?.postMessage({... message, reverse: this.reverse}, '*');
+    iframe.contentWindow?.postMessage({ ...message, reverse: this.reverse }, '*');
+  }
+
+  initializeGame() {
+    this.gameId = localStorage.getItem('gameId') || '';
+    this.reverse = localStorage.getItem('reverse') || '';
+
+    if (this.gameId) {
+      this.getGame();
+    }
   }
 
   createGame() {
     this.firebaseService.createGame({}).then((result) => {
-      this.reset(result.id)
+      this.reset(result.id);
+      this.watchGame()
     });
   }
 
-  reset(id: string){
+  reset(id: string) {
     this.gameId = id;
     localStorage.setItem('gameId', id);
     localStorage.removeItem('reverse');
@@ -50,36 +66,38 @@ export class MainPageComponent {
 
     this.getGame();
   }
-  
+
   handleMoveEvent(event: MessageEvent) {
-    const {type, state, mate} = event.data;
+    const { type, state, mate } = event.data;
     if (type === 'move') {
-      this.firebaseService.updateGameById(this.gameId, {state, mate})
+      this.firebaseService.updateGameById(this.gameId, { state, mate });
     }
   }
 
-  getGame(){
-    if(this.gameId){
-      this.firebaseService.getGameById(this.gameId).then((data: any) => {
-        localStorage.setItem('gameId', this.gameId);
-        this.watch();
-      })  
-    }
+  getGame() {
+    this.firebaseService.getGameById(this.gameId).then((data: any) => {
+      this.watchGame();
+    }).catch(error => {
+      console.error('Error fetching game:', error);
+      // Handle error, e.g., redirect to an error page
+    });
   }
 
-  watch() {
-    this.gameSubscription = this.firebaseService.onGameUpdate(this.gameId).subscribe((data: any) => {
-      console.log('watch', data)
-      const { state, mate} = data;
+  watchGame() {
+    this.unsubscribeGameUpdate(); // Unsubscribe to previous updates
+
+    this.gameSubscription = this.firebaseService.onGameUpdate(this.gameId).pipe(take(1)).subscribe((data: any) => {
+      console.log('Game updated:', data);
+      const { state, mate } = data;
       this.postMessage({ type: 'play', state, mate });
-      if (mate){
-        alert('Game end !')
+      if (mate) {
+        alert('Game end!');
       }
     });
   }
 
-  ngOnDestroy() {
-    if (this.gameSubscription) {
+  unsubscribeGameUpdate() {
+    if (this.gameSubscription && !this.gameSubscription.closed) {
       this.gameSubscription.unsubscribe();
     }
   }

@@ -14,6 +14,7 @@ export class MainPageComponent {
   gameId: string = localStorage.getItem('gameId') ?? '';
   reverse: string = localStorage.getItem('reverse') ?? ''
   gameSubscription: Subscription = new Subscription();
+  gameMode: string = 'create';
 
   constructor(private sanitizer: DomSanitizer,  private firebaseService: FirebaseService) {
     this.iframePlayerOneUrl = this.sanitizer.bypassSecurityTrustResourceUrl('/iframepage');
@@ -32,11 +33,15 @@ export class MainPageComponent {
 
   createGame() {
     this.firebaseService.createGame({}).then((result) => {
-      this.gameId = result.id;
-      localStorage.setItem('gameId', this.gameId);
-
-      this.postMessage({ type: 'reset' });
+      this.reset(result.id)
     });
+  }
+
+  reset(id: string){
+    this.gameId = id;
+    localStorage.setItem('gameId', id);
+    localStorage.removeItem('reverse');
+    this.postMessage({ type: 'reset' });
   }
 
   joinGame() {
@@ -47,9 +52,9 @@ export class MainPageComponent {
   }
   
   handleMoveEvent(event: MessageEvent) {
-    const {type, state} = event.data;
+    const {type, state, mate} = event.data;
     if (type === 'move') {
-      this.firebaseService.updateGameById(this.gameId, {state})
+      this.firebaseService.updateGameById(this.gameId, {state, mate})
     }
   }
 
@@ -65,7 +70,11 @@ export class MainPageComponent {
   watch() {
     this.gameSubscription = this.firebaseService.onGameUpdate(this.gameId).subscribe((data: any) => {
       console.log('watch', data)
-      this.postMessage({ type: 'play', state: data.state });
+      const { state, mate} = data;
+      this.postMessage({ type: 'play', state, mate });
+      if (mate){
+        alert('Game end !')
+      }
     });
   }
 

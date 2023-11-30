@@ -14,20 +14,19 @@ export class IframePageComponent {
   @HostListener('window:message', ['$event'])
   onMessage(event: MessageEvent) {
     const {type, state, reverse} = event.data;
-    console.log(event.data)
     if (type === 'play') {
       this.board.setFEN(state)
       if (reverse) {
         this.board.reverse();
       }
     }
-
     if (type === 'reset') {
       this.board.reset()
     }
   }
   onMove() {
     const state = this.board.getFEN();
-    window.parent.postMessage({ type: 'move', state }, '*');
+    const { mate } = this.board.getMoveHistory().slice(-1)[0];
+    window.parent.postMessage({ type: 'move', state, mate }, '*');
   }
 }

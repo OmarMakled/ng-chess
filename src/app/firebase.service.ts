@@ -8,12 +8,6 @@ import { Observable } from 'rxjs';
 export class FirebaseService {
   constructor(private fs: Firestore) {}
 
-  addState(state: string) {
-    let data = {state}
-    let gamesCollection = collection(this.fs, 'games');
-    return addDoc(gamesCollection, data);
-  }
-
   createGame(gameData: any){
     const gamesCollection = collection(this.fs, 'games');
     return addDoc(gamesCollection, gameData);

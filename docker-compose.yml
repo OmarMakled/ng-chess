@@ -1,0 +1,10 @@
+version: '3.3'
+services:
+    angular:
+        image: node:alpine
+        command: tail -F /dev/null
+        working_dir: /usr/src/app
+        volumes:
+            - .:/usr/src/app
+        ports:
+            - "4200:4200"

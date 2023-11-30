@@ -25,12 +25,12 @@ export class MainPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    window.addEventListener('message', this.handleMoveEvent.bind(this));
+    window.addEventListener('message', this.onMessage.bind(this));
     this.initializeGame();
   }
 
   ngOnDestroy() {
-    window.removeEventListener('message', this.handleMoveEvent.bind(this));
+    window.removeEventListener('message', this.onMessage.bind(this));
     this.unsubscribeGameUpdate();
   }
 
@@ -77,7 +77,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
     this.getGame();
   }
 
-  handleMoveEvent(event: MessageEvent) {
+  onMessage(event: MessageEvent) {
     const { type, state, mate } = event.data;
     if (type === 'move') {
       this.firebaseService.updateGameById(this.gameId, { state, mate });
